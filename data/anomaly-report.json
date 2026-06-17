@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-06-17T12:22:49.213986+00:00",
+  "total_anomalies_detected": 12,
+  "anomalies_by_type": {
+    "off_hours_access": [
+      {
+        "anomaly_type": "off_hours_access",
+        "identity": "dev-user-alice",
+        "path": "secret/data/db-credentials/postgres-main",
+        "time": "2026-06-10T02:54:35+00:00",
+        "hour": 2,
+        "detail": "dev-user-alice accessed secret/data/db-credentials/postgres-main at 2:00 (outside 06:00-22:00)"
+      },
+      {
+        "anomaly_type": "off_hours_access",
+        "identity": "dev-user-alice",
+        "path": "secret/data/api-keys/payment-gateway",
+        "time": "2026-06-10T03:27:04+00:00",
+        "hour": 3,
+        "detail": "dev-user-alice accessed secret/data/api-keys/payment-gateway at 3:00 (outside 06:00-22:00)"
+      },
+      {
+        "anomaly_type": "off_hours_access",
+        "identity": "dev-user-alice",
+        "path": "secret/data/api-keys/payment-gateway",
+        "time": "2026-06-11T03:11:56+00:00",
+        "hour": 3,
+        "detail": "dev-user-alice accessed secret/data/api-keys/payment-gateway at 3:00 (outside 06:00-22:00)"
+      },
+      {
+        "anomaly_type": "off_hours_access",
+        "identity": "dev-user-alice",
+        "path": "secret/data/api-keys/payment-gateway",
+        "time": "2026-06-11T04:26:51+00:00",
+        "hour": 4,
+        "detail": "dev-user-alice accessed secret/data/api-keys/payment-gateway at 4:00 (outside 06:00-22:00)"
+      },
+      {
+        "anomaly_type": "off_hours_access",
+        "identity": "dev-user-alice",
+        "path": "secret/data/api-keys/payment-gateway",
+        "time": "2026-06-12T03:10:07+00:00",
+        "hour": 3,
+        "detail": "dev-user-alice accessed secret/data/api-keys/payment-gateway at 3:00 (outside 06:00-22:00)"
+      }
+    ],
+    "unusual_identity_secret_pairing": [
+      {
+        "anomaly_type": "unusual_identity_secret_pairing",
+        "identity": "dev-user-alice",
+        "path": "secret/data/service-tokens/monitoring-agent",
+        "time": "2026-06-11T10:19:45+00:00",
+        "detail": "dev-user-alice (developer role) accessed secret/data/service-tokens/monitoring-agent which is outside developer scope"
+      },
+      {
+        "anomaly_type": "unusual_identity_secret_pairing",
+        "identity": "dev-user-alice",
+        "path": "secret/data/env-config/dev-settings",
+        "time": "2026-06-11T12:37:03+00:00",
+        "detail": "dev-user-alice (developer role) accessed secret/data/env-config/dev-settings which is outside developer scope"
+      },
+      {
+        "anomaly_type": "unusual_identity_secret_pairing",
+        "identity": "dev-user-alice",
+        "path": "secret/data/env-config/dev-settings",
+        "time": "2026-06-11T12:37:13+00:00",
+        "detail": "dev-user-alice (developer role) accessed secret/data/env-config/dev-settings which is outside developer scope"
+      },
+      {
+        "anomaly_type": "unusual_identity_secret_pairing",
+        "identity": "dev-user-alice",
+        "path": "secret/data/env-config/dev-settings",
+        "time": "2026-06-11T15:02:08+00:00",
+        "detail": "dev-user-alice (developer role) accessed secret/data/env-config/dev-settings which is outside developer scope"
+      },
+      {
+        "anomaly_type": "unusual_identity_secret_pairing",
+        "identity": "dev-user-alice",
+        "path": "secret/data/env-config/dev-settings",
+        "time": "2026-06-11T15:27:20+00:00",
+        "detail": "dev-user-alice (developer role) accessed secret/data/env-config/dev-settings which is outside developer scope"
+      },
+      {
+        "anomaly_type": "unusual_identity_secret_pairing",
+        "identity": "dev-user-alice",
+        "path": "secret/data/env-config/dev-settings",
+        "time": "2026-06-11T15:42:58+00:00",
+        "detail": "dev-user-alice (developer role) accessed secret/data/env-config/dev-settings which is outside developer scope"
+      }
+    ],
+    "abnormal_access_frequency": [
+      {
+        "anomaly_type": "abnormal_access_frequency",
+        "identity": "github-actions-cicd",
+        "time": "2026-06-12T14:00:14+00:00",
+        "count_in_window": 50,
+        "window_minutes": 10,
+        "detail": "github-actions-cicd made 50 accesses within 10 minutes starting at 2026-06-12T14:00:14+00:00"
+      }
+    ]
+  },
+  "ai_narration": "**Security Incident Narrative**\n\n### 1. Off-Hours Access Anomaly\n\n* **What happened**: Multiple instances of secret access were detected outside the approved hours of 06:00-22:00 by dev-user-alice. Specifically, access to secrets such as database credentials (postgres-main) and API keys (payment-gateway) occurred between 2:00 and 4:00.\n* **Risk assessment**: Medium severity. This could indicate unauthorized or unsanctioned access to sensitive information, potentially increasing the risk of data breaches or unauthorized changes.\n* **Recommended action**: The security team should investigate the reason behind dev-user-alice's off-hours access, verify the legitimacy of the access, and ensure that the user is aware of and adheres to the approved access hours. Additionally, review access controls and monitoring to prevent similar incidents in the future.\n\n### 2. Unusual Identity-Secret Pairing Anomaly\n\n* **What happened**: dev-user-alice, a user with a developer role, accessed secrets outside their expected scope, including service tokens (monitoring-agent) and environment configuration (dev-settings).\n* **Risk assessment**: Medium severity. This could indicate a potential misconfiguration of access controls, over-privilege, or unauthorized access to sensitive information.\n* **Recommended action**: The security team should review the access controls and permissions assigned to dev-user-alice, ensure that the user's role and responsibilities align with the accessed secrets, and verify that the access was legitimate. If necessary, update access controls to prevent similar incidents.\n\n### 3. Abnormal Access Frequency Anomaly\n\n* **What happened**: The github-actions-cicd entity made an unusually high number of accesses (50) within a short time frame (10 minutes) starting at 2026-06-12T14:00:14+00:00.\n* **Risk assessment**: High severity. This could indicate a potential security incident, such as a brute-force attack, automated exploitation, or a misconfigured CI/CD pipeline.\n* **Recommended action**: The security team should immediately investigate the cause of the abnormal access frequency, verify the legitimacy of the accesses, and ensure that the github-actions-cicd entity is properly configured and secured. If necessary, take corrective actions to prevent similar incidents, such as rate limiting or adjusting access controls."
+}

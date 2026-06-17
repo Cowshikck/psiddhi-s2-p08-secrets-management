@@ -1,0 +1,30 @@
+# Vault client
+hvac
+
+# HTTP
+requests
+
+# Environment config
+python-dotenv
+
+# Testing
+pytest
+pytest-cov
+
+# Dashboard
+streamlit
+plotly
+
+# AI - LangChain
+langchain
+langchain-google-genai
+
+# AI - Groq
+groq
+
+# Utilities
+pyyaml
+jinja2
+
+# Load testing
+locust

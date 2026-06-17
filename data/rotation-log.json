@@ -1,0 +1,154 @@
+[
+  {
+    "timestamp": "2026-06-17T12:05:21.533226+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 1,
+    "new_version": 2,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:05:21.557418+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 1,
+    "new_version": 2,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:05:21.582774+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 1,
+    "new_version": 2,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.197720+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 2,
+    "new_version": 3,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.268830+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 3,
+    "new_version": 4,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.333201+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 4,
+    "new_version": 5,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.375220+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 2,
+    "new_version": 3,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.412969+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 3,
+    "new_version": 4,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.485253+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 2,
+    "new_version": 3,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.568124+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 3,
+    "new_version": 4,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:10.619273+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 5,
+    "new_version": 6,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.190248+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 6,
+    "new_version": 7,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.236214+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 7,
+    "new_version": 8,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.302673+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 8,
+    "new_version": 9,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.363861+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 4,
+    "new_version": 5,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.437139+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 5,
+    "new_version": 6,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.480472+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 4,
+    "new_version": 5,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.548946+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 5,
+    "new_version": 6,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-17T12:08:32.611913+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 9,
+    "new_version": 10,
+    "status": "success"
+  }
+]

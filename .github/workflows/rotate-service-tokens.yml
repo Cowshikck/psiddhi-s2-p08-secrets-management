@@ -1,0 +1,60 @@
+name: Rotate Service Tokens
+
+on:
+  schedule:
+    - cron: '0 2 * * 5'  # Every Friday at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install hvac requests python-dotenv
+
+      - name: Install Vault
+        run: |
+          wget -qO- https://releases.hashicorp.com/vault/1.19.0/vault_1.19.0_linux_amd64.zip -O vault.zip
+          unzip vault.zip
+          sudo mv vault /usr/local/bin/
+          vault version
+
+      - name: Start Vault dev server
+        run: |
+          vault server -dev -dev-root-token-id="test-root-token" &
+          sleep 3
+
+      - name: Seed Vault and rotate service token
+        env:
+          VAULT_ADDR: http://127.0.0.1:8200
+          VAULT_TOKEN: test-root-token
+        run: |
+          python src/vault/setup_vault.py
+          python -c "
+          from src.rotation.rotate_secrets import get_client, rotate_service_token
+          client = get_client()
+          result = rotate_service_token(client)
+          assert result, 'Service token rotation failed'
+          print('Service token rotation completed successfully')
+          "
+
+      - name: Verify rotation
+        env:
+          VAULT_ADDR: http://127.0.0.1:8200
+          VAULT_TOKEN: test-root-token
+        run: |
+          python -c "
+          from src.rotation.rotate_secrets import get_client, read_current_secret
+          client = get_client()
+          data, version = read_current_secret(client, 'service-tokens/monitoring-agent')
+          assert version == 2, f'Expected version 2, got {version}'
+          print(f'Verified: version {version}')
+          "

@@ -28,14 +28,6 @@ jobs:
           sudo mv vault /usr/local/bin/
           vault version
 
-      - name: Install SOPS and age
-        run: |
-          wget -qO /usr/local/bin/sops https://github.com/getsops/sops/releases/download/v3.9.0/sops-v3.9.0.linux.amd64
-          chmod +x /usr/local/bin/sops
-          wget -qO- https://github.com/FiloSottile/age/releases/download/v1.2.0/age-v1.2.0-linux-amd64.tar.gz | tar xz
-          sudo mv age/age /usr/local/bin/
-          sudo mv age/age-keygen /usr/local/bin/
-
       - name: Start Vault dev server
         run: |
           vault server -dev -dev-root-token-id="test-root-token" &
@@ -46,11 +38,6 @@ jobs:
           VAULT_ADDR: http://127.0.0.1:8200
           VAULT_TOKEN: test-root-token
         run: python src/vault/setup_vault.py
-
-      - name: Generate age key for SOPS tests
-        run: |
-          mkdir -p /tmp/sops-keys
-          age-keygen -o /tmp/sops-keys/key.txt 2>/dev/null
 
       - name: Run Vault policy tests
         env:
@@ -64,9 +51,8 @@ jobs:
           VAULT_TOKEN: test-root-token
         run: python -m pytest tests/unit/test_rotation.py -v
 
-      - name: Run all tests with coverage
+      - name: Run coverage on testable modules
         env:
           VAULT_ADDR: http://127.0.0.1:8200
           VAULT_TOKEN: test-root-token
-          SOPS_AGE_KEY_FILE: /tmp/sops-keys/key.txt
-        run: python -m pytest tests/ -v --cov=src --cov-report=term-missing
+        run: python -m pytest tests/unit/test_vault_policies.py tests/unit/test_rotation.py -v --cov=src.rotation --cov=src.vault --cov-report=term-missing

@@ -150,5 +150,197 @@
     "old_version": 9,
     "new_version": 10,
     "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:17.519496+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 10,
+    "new_version": 11,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:17.616575+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 11,
+    "new_version": 12,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:17.706782+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 12,
+    "new_version": 13,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:17.794452+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 6,
+    "new_version": 7,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:17.866941+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 7,
+    "new_version": 8,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:17.950498+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 6,
+    "new_version": 7,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:18.036752+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 7,
+    "new_version": 8,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:33:18.108309+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 13,
+    "new_version": 14,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.289180+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 14,
+    "new_version": 15,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.370348+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 15,
+    "new_version": 16,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.454353+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 16,
+    "new_version": 17,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.530271+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 8,
+    "new_version": 9,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.638645+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 9,
+    "new_version": 10,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.717833+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 8,
+    "new_version": 9,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.831317+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 9,
+    "new_version": 10,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:36:56.910898+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 17,
+    "new_version": 18,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:34.444710+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 18,
+    "new_version": 19,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:34.558357+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 19,
+    "new_version": 20,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:34.669349+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 20,
+    "new_version": 21,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:34.749168+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 10,
+    "new_version": 11,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:34.850425+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 11,
+    "new_version": 12,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:34.926177+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 10,
+    "new_version": 11,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:35.011639+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 11,
+    "new_version": 12,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-06-18T08:40:35.088875+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 21,
+    "new_version": 22,
+    "status": "success"
   }
 ]

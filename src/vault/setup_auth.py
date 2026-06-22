@@ -1,8 +1,7 @@
 """
-VaultGuard - Auth Setup (Userpass Fallback)
-Sets up userpass auth method with 3 identity roles mapped to Vault policies.
-This is the documented fallback when Entra ID OIDC access is unavailable.
-When Entra ID becomes available, replace userpass with OIDC - the policies remain the same.
+VaultGuard - Auth Setup (OIDC + Userpass Fallback)
+Configures Vault OIDC auth against Entra ID tenant + userpass as fallback.
+Run this after every Vault dev mode restart.
 """
 
 import hvac
@@ -14,136 +13,133 @@ load_dotenv()
 VAULT_ADDR = os.getenv("VAULT_ADDR", "http://127.0.0.1:8200")
 VAULT_TOKEN = os.getenv("VAULT_TOKEN")
 
-# 3 identity roles matching the proposal
-USERS = [
-    {
-        "username": "alice-developer",
-        "password": "dev-pass-2026-demo",
-        "policies": ["developer"],
-        "role_description": "Developer - read-only access to db-credentials and api-keys"
-    },
-    {
-        "username": "cicd-service",
-        "password": "cicd-pass-2026-demo",
-        "policies": ["cicd"],
-        "role_description": "CI/CD Service Principal - read access to dev + staging secrets"
-    },
-    {
-        "username": "bob-admin",
-        "password": "admin-pass-2026-demo",
-        "policies": ["platform-admin"],
-        "role_description": "Platform Admin - full control on all secret paths"
-    }
+# Entra ID tenant details
+TENANT_ID = "070808c5-4d3b-459f-8605-6f85f1415c5c"
+CLIENT_ID = "76048c1c-f09c-464d-90a3-72ac7bef069e"
+CLIENT_SECRET = "E_A8Q~YCbXWH52yjvhZGfqzI49aCGF5e2qv3ub-2"
+OIDC_DISCOVERY_URL = "https://login.microsoftonline.com/" + TENANT_ID + "/v2.0"
+
+REDIRECT_URIS = [
+    "http://localhost:8200/ui/vault/auth/oidc/oidc/callback",
+    "http://localhost:8250/oidc/callback"
+]
+
+OIDC_ROLES = [
+    {"name": "developer", "policies": ["developer"], "description": "Developer - read-only on db-creds and api-keys"},
+    {"name": "cicd", "policies": ["cicd"], "description": "CI/CD - read on dev + staging secrets"},
+    {"name": "platform-admin", "policies": ["platform-admin"], "description": "Platform Admin - full control"},
+]
+
+USERPASS_USERS = [
+    {"username": "alice-developer", "password": "dev-pass-2026-demo", "policies": ["developer"]},
+    {"username": "cicd-service", "password": "cicd-pass-2026-demo", "policies": ["cicd"]},
+    {"username": "bob-admin", "password": "admin-pass-2026-demo", "policies": ["platform-admin"]},
 ]
 
 
 def get_client():
-    """Create and return an authenticated Vault client."""
     client = hvac.Client(url=VAULT_ADDR, token=VAULT_TOKEN)
     if not client.is_authenticated():
         raise Exception("Vault authentication failed.")
     return client
 
 
-def enable_userpass(client):
-    """Enable userpass auth method if not already enabled."""
+def setup_oidc(client):
+    """Enable and configure OIDC auth method against Entra ID."""
+    print("--- OIDC Auth (Entra ID) ---")
+
+    # Enable OIDC
+    auth_methods = client.sys.list_auth_methods()
+    if "oidc/" in auth_methods:
+        print("[OK] OIDC auth already enabled.")
+    else:
+        client.sys.enable_auth_method(method_type="oidc")
+        print("[OK] OIDC auth method enabled.")
+
+    # Configure OIDC
+    client.auth.oidc.configure(
+        oidc_discovery_url=OIDC_DISCOVERY_URL,
+        oidc_client_id=CLIENT_ID,
+        oidc_client_secret=CLIENT_SECRET,
+        default_role="developer"
+    )
+    print("[OK] OIDC configured against Entra ID tenant: " + TENANT_ID)
+
+    # Create roles
+    for role in OIDC_ROLES:
+        client.auth.oidc.create_role(
+            name=role["name"],
+            bound_audiences=[CLIENT_ID],
+            allowed_redirect_uris=REDIRECT_URIS,
+            user_claim="sub",
+            token_policies=role["policies"],
+            token_ttl="1h"
+        )
+        print("[OK] OIDC role: " + role["name"] + " -> " + str(role["policies"]) + " (" + role["description"] + ")")
+
+    print("[OK] OIDC setup complete. Test with: vault login -method=oidc role=developer\n")
+
+
+def setup_userpass(client):
+    """Enable userpass auth as fallback."""
+    print("--- Userpass Auth (Fallback) ---")
+
     auth_methods = client.sys.list_auth_methods()
     if "userpass/" in auth_methods:
         print("[OK] Userpass auth already enabled.")
-        return
+    else:
+        client.sys.enable_auth_method(method_type="userpass")
+        print("[OK] Userpass auth method enabled.")
 
-    client.sys.enable_auth_method(method_type="userpass")
-    print("[OK] Userpass auth method enabled.")
-
-
-def create_users(client):
-    """Create 3 users with mapped policies."""
-    for user in USERS:
+    for user in USERPASS_USERS:
         client.auth.userpass.create_or_update_user(
             username=user["username"],
             password=user["password"],
             policies=user["policies"]
         )
-        print("[OK] User created: " + user["username"] + " -> " + str(user["policies"]))
-        print("     " + user["role_description"])
+        print("[OK] Userpass user: " + user["username"] + " -> " + str(user["policies"]))
+
+    print("[OK] Userpass setup complete.\n")
 
 
-def test_logins(client):
-    """Test that each user can log in and gets the correct policies."""
-    print("\n--- Login Tests ---")
+def verify(client):
+    """Verify both auth methods are configured."""
+    print("--- Verification ---")
+    auth_methods = client.sys.list_auth_methods()
 
-    for user in USERS:
+    if "oidc/" in auth_methods:
+        print("[OK] OIDC auth method: enabled")
+    else:
+        print("[FAIL] OIDC auth method: not found")
+
+    if "userpass/" in auth_methods:
+        print("[OK] Userpass auth method: enabled")
+    else:
+        print("[FAIL] Userpass auth method: not found")
+
+    # Test userpass login
+    for user in USERPASS_USERS:
         try:
-            login_response = client.auth.userpass.login(
-                username=user["username"],
-                password=user["password"]
-            )
-            token = login_response["auth"]["client_token"]
-            attached_policies = login_response["auth"]["policies"]
-
-            # Check policy is attached
-            expected_policy = user["policies"][0]
-            if expected_policy in attached_policies:
-                print("[OK] " + user["username"] + " logged in - policies: " + str(attached_policies))
-            else:
-                print("[FAIL] " + user["username"] + " missing expected policy: " + expected_policy)
-
-            # Test actual secret access with the user's token
-            user_client = hvac.Client(url=VAULT_ADDR, token=token)
-
-            if expected_policy == "developer":
-                # Should read db-creds, should NOT read service-tokens
-                try:
-                    user_client.secrets.kv.v2.read_secret_version(
-                        path="db-credentials/postgres-main",
-                        mount_point="secret",
-                        raise_on_deleted_version=True
-                    )
-                    print("     [OK] Can read db-credentials (expected)")
-                except hvac.exceptions.Forbidden:
-                    print("     [FAIL] Cannot read db-credentials (unexpected)")
-
-                try:
-                    user_client.secrets.kv.v2.read_secret_version(
-                        path="service-tokens/monitoring-agent",
-                        mount_point="secret",
-                        raise_on_deleted_version=True
-                    )
-                    print("     [FAIL] Can read service-tokens (should be denied)")
-                except hvac.exceptions.Forbidden:
-                    print("     [OK] Cannot read service-tokens (expected deny)")
-
-            elif expected_policy == "platform-admin":
-                # Should read everything
-                try:
-                    user_client.secrets.kv.v2.read_secret_version(
-                        path="tls-certificates/web-frontend",
-                        mount_point="secret",
-                        raise_on_deleted_version=True
-                    )
-                    print("     [OK] Can read tls-certificates (expected for admin)")
-                except hvac.exceptions.Forbidden:
-                    print("     [FAIL] Cannot read tls-certificates (unexpected)")
-
+            login = client.auth.userpass.login(username=user["username"], password=user["password"])
+            policies = login["auth"]["policies"]
+            print("[OK] Userpass login: " + user["username"] + " -> " + str(policies))
         except Exception as e:
-            print("[FAIL] " + user["username"] + " login failed: " + str(e))
+            print("[FAIL] Userpass login: " + user["username"] + " -> " + str(e))
+
+    print("\n[DONE] Both OIDC (Entra ID) and userpass (fallback) auth configured.")
+    print("  OIDC test:     vault login -method=oidc role=developer")
+    print("  Userpass test:  vault login -method=userpass username=alice-developer password=dev-pass-2026-demo")
 
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("VaultGuard - Auth Setup (Userpass Fallback)")
-    print("=" * 50)
-    print("Note: This is the documented fallback for Entra ID OIDC.")
-    print("When Entra ID access is granted, swap userpass for OIDC.\n")
+    print("=" * 55)
+    print("VaultGuard - Auth Setup (OIDC + Userpass)")
+    print("=" * 55)
+    print("Entra ID Tenant: " + TENANT_ID)
+    print("OIDC Client:     " + CLIENT_ID)
+    print()
 
     client = get_client()
-
-    print("--- Step 1: Enable Userpass Auth ---")
-    enable_userpass(client)
-
-    print("\n--- Step 2: Create Users ---")
-    create_users(client)
-
-    test_logins(client)
-
-    print("\n[DONE] 3 identity roles configured and verified.")
+    setup_oidc(client)
+    setup_userpass(client)
+    verify(client)

@@ -342,5 +342,93 @@
     "old_version": 21,
     "new_version": 22,
     "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:23.733517+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 1,
+    "new_version": 2,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:23.826414+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 2,
+    "new_version": 3,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:23.925984+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 3,
+    "new_version": 4,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:24.019735+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 1,
+    "new_version": 2,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:24.097276+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 2,
+    "new_version": 3,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:24.177177+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 1,
+    "new_version": 2,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:24.273331+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 2,
+    "new_version": 3,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:49:24.336669+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 4,
+    "new_version": 5,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:52:49.051592+00:00",
+    "event": "secret_rotation",
+    "secret_path": "db-credentials/postgres-main",
+    "old_version": 5,
+    "new_version": 6,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:52:49.086230+00:00",
+    "event": "secret_rotation",
+    "secret_path": "api-keys/payment-gateway",
+    "old_version": 3,
+    "new_version": 4,
+    "status": "success"
+  },
+  {
+    "timestamp": "2026-07-14T09:52:49.128448+00:00",
+    "event": "secret_rotation",
+    "secret_path": "service-tokens/monitoring-agent",
+    "old_version": 3,
+    "new_version": 4,
+    "status": "success"
   }
 ]

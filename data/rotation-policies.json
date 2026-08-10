@@ -1,92 +1,96 @@
 {
-  "generated_at": "2026-06-17T15:18:56.468551+00:00",
+  "generated_at": "2026-07-14T10:03:47.060855+00:00",
   "generator": "Gemini 2.5 Flash",
   "total_categories": 4,
   "policies": [
     {
       "category": "database_credentials",
       "recommended_rotation_interval_days": 30,
-      "rotation_strategy": "Automated, multi-phase rotation. Phase 1: Generate new credentials. Phase 2: Update application servers with new credentials (e.g., via configuration management or secret manager). Phase 3: Verify connectivity with new credentials. Phase 4: Revoke old credentials. Phase 5: Update CI/CD systems with new credentials.",
-      "propagation_method": "Centralized secret manager (e.g., HashiCorp Vault, AWS Secrets Manager) integration with application servers. CI/CD systems should pull from the same secret manager.",
-      "blast_radius_notes": "If rotation fails midway, applications might lose connectivity to the database, leading to service outages. Partial updates could leave some consumers using old, revoked credentials, or some consumers using new credentials while others still use old, valid ones, creating inconsistency.",
+      "rotation_strategy": "Automated, multi-phase rotation. Phase 1: Generate new credentials. Phase 2: Update application servers to use new credentials (rolling restart). Phase 3: Update CI/CD. Phase 4: Revoke old credentials. Consider a 'dual-key' approach where both old and new credentials are valid for a short period during transition.",
+      "propagation_method": "Configuration management system (e.g., Ansible, Kubernetes Secrets) for application servers. CI/CD pipeline variables or secret management system for CI/CD.",
+      "blast_radius_notes": "If rotation fails midway, applications might lose connectivity to the database, leading to service outages. Partial updates could leave some services using old, revoked credentials. Data corruption is unlikely but service unavailability is high.",
       "pre_rotation_checks": [
-        "Verify all application servers are healthy and reachable.",
-        "Ensure secret manager is operational and accessible.",
-        "Confirm database connection pooling configurations allow for dynamic credential updates without service restart (if possible).",
-        "Backup current database credentials.",
-        "Verify CI/CD pipelines are configured to pull credentials from the secret manager."
+        "Verify database connectivity from all application servers using current credentials.",
+        "Ensure all application servers are healthy and reachable.",
+        "Confirm CI/CD pipelines can access current credentials.",
+        "Backup database and application configurations.",
+        "Verify secret management system (if used) is operational.",
+        "Test rollback plan for application configuration changes."
       ],
       "post_rotation_checks": [
-        "Verify all application services can successfully connect to the database using the new credentials.",
+        "Verify database connectivity from all application servers using new credentials.",
         "Monitor application logs for database connection errors.",
-        "Verify CI/CD pipelines can successfully connect to the database using the new credentials.",
-        "Attempt to connect using the old credentials to confirm they are revoked.",
-        "Monitor database for any unauthorized access attempts using old credentials."
+        "Run smoke tests on applications to ensure full functionality.",
+        "Verify CI/CD pipelines can successfully connect to the database using new credentials.",
+        "Confirm old credentials have been successfully revoked.",
+        "Monitor database for any unauthorized access attempts."
       ],
-      "justification": "Given the high sensitivity and persistent connections, a 6-month manual rotation is insufficient. An automated 30-day rotation significantly reduces the window of exposure for compromised credentials. The multi-phase strategy minimizes downtime by ensuring new credentials are propagated and verified before old ones are revoked. Centralized secret management simplifies propagation and reduces human error. The pre/post checks are critical to ensure a smooth, verifiable rotation process and minimize the blast radius."
+      "justification": "Given the high sensitivity and persistent connections, a 6-month manual rotation is insufficient. An automated monthly rotation significantly reduces the window of exposure for compromised credentials. The multi-phase strategy minimizes downtime by gradually transitioning consumers. Automated propagation ensures consistency and reduces human error. The dual-key approach (if supported by the database/application) can further reduce downtime during transition. Frequent rotation is a critical control for high-sensitivity secrets."
     },
     {
       "category": "api_keys",
       "recommended_rotation_interval_days": 30,
-      "rotation_strategy": "Automated, multi-phase rotation with a grace period for old keys. Generate new key, update consumers, then revoke old key after a set period.",
-      "propagation_method": "Configuration management system (e.g., HashiCorp Vault, AWS Secrets Manager) integration with microservice and staging environment. Microservice should dynamically fetch secrets or be restarted with new configuration.",
-      "blast_radius_notes": "If rotation fails midway, transactions will fail. If the old key is revoked prematurely, the payment microservice will be unable to process transactions until the new key is correctly propagated and active. Staging environment will also be impacted.",
+      "rotation_strategy": "Automated, zero-downtime rotation using a secret management solution. Generate new key, update consumers, then revoke old key.",
+      "propagation_method": "Configuration management system (e.g., Ansible, Kubernetes Secrets) or direct integration with a secret manager (e.g., HashiCorp Vault, AWS Secrets Manager) for dynamic secret retrieval by microservices.",
+      "blast_radius_notes": "If rotation fails midway, the payment microservice or staging environment might be unable to authenticate with the payment gateway, leading to transaction failures and service disruption. Partial updates could leave some consumers with an invalid key while others have the new key, causing inconsistent behavior.",
       "pre_rotation_checks": [
-        "Verify connectivity to payment gateway API with current key.",
-        "Ensure all consumers (payment microservice, staging) are healthy and reachable.",
-        "Confirm configuration management system is operational and accessible.",
-        "Verify rollback mechanism for secret configuration is functional."
+        "Verify connectivity to the payment gateway.",
+        "Ensure secret management solution is operational and accessible.",
+        "Confirm all consumers (payment microservice, staging) are healthy and reachable.",
+        "Backup current secret configuration.",
+        "Test new key generation process in a non-production environment."
       ],
       "post_rotation_checks": [
-        "Verify successful transaction processing in staging environment using the new key.",
-        "Monitor payment microservice logs for API key authentication errors.",
-        "Perform a small-scale, non-critical transaction in production (if feasible and safe) to confirm functionality.",
-        "Confirm old key is successfully revoked after grace period.",
-        "Monitor payment gateway logs for any unauthorized access attempts using old key."
+        "Verify payment microservice can successfully process transactions using the new key.",
+        "Verify staging environment can successfully make API calls using the new key.",
+        "Monitor payment gateway logs for authentication errors.",
+        "Confirm old key has been successfully revoked at the payment gateway.",
+        "Check secret management solution logs for successful rotation."
       ],
-      "justification": "Given the critical sensitivity and per-request usage, a manual-only rotation is insufficient. A 30-day automated rotation significantly reduces the window of exposure for a compromised key. The multi-phase strategy with a grace period minimizes downtime by allowing consumers to transition to the new key before the old one is revoked. Automated propagation through a secrets manager ensures consistency and reduces human error. Extensive pre/post-rotation checks are crucial to prevent service disruption."
+      "justification": "Given the 'critical' sensitivity and 'per-request authentication' usage, a 30-day automated rotation is recommended to significantly reduce the window of exposure for a compromised key, moving away from 'manual, only when compromised'. This interval balances security posture with operational overhead. Automated, zero-downtime rotation is crucial to prevent service disruption for a critical payment gateway. The propagation method should leverage existing infrastructure for efficiency and reliability."
     },
     {
       "category": "service_tokens",
       "recommended_rotation_interval_days": 90,
-      "rotation_strategy": "Automated, phased rotation with a brief overlap period. Generate a new token, update consumers, then revoke the old token.",
-      "propagation_method": "Configuration management system (e.g., Ansible, Puppet, Chef) or secret management solution (e.g., HashiCorp Vault agent, AWS Secrets Manager agent) pushing updates to monitoring agents. Agents should be configured to fetch new secrets periodically or on a trigger.",
-      "blast_radius_notes": "If rotation fails midway, some monitoring agents might be using an invalid token, leading to a temporary loss of monitoring data from those agents. The system should be designed to revert to the old token if the new one fails to propagate or validate.",
+      "rotation_strategy": "Automated, phased rotation with a brief overlap period. Generate new token, update agents, then revoke old token.",
+      "propagation_method": "Configuration management system (e.g., Ansible, Chef, Puppet) or secret management system (e.g., HashiCorp Vault, AWS Secrets Manager) integration with agent configuration.",
+      "blast_radius_notes": "If rotation fails midway, agents might lose access to monitoring endpoints, leading to a temporary loss of observability data. Services relying on these agents for health checks could report false negatives.",
       "pre_rotation_checks": [
-        "Verify all 5 consumers are online and reachable.",
-        "Ensure configuration management system or secret management solution is operational.",
-        "Confirm rollback mechanism is in place and tested.",
-        "Verify current monitoring data ingestion rates are normal."
+        "Verify all 5 consumers are active and reachable.",
+        "Ensure configuration management system or secret management system is operational and accessible.",
+        "Confirm rollback procedures are documented and understood.",
+        "Verify monitoring and alerting systems are functional to detect issues post-rotation."
       ],
       "post_rotation_checks": [
-        "Verify all 5 consumers are successfully using the new token (e.g., check logs for successful authentication, monitor agent health metrics).",
-        "Confirm monitoring data ingestion rates are back to normal from all agents.",
-        "Ensure the old token has been successfully revoked.",
-        "Monitor for any authentication errors related to service_tokens for 24-48 hours post-rotation."
+        "Verify all 5 consumers are successfully using the new token.",
+        "Confirm monitoring data is flowing correctly from all agents.",
+        "Check agent logs for any authentication errors.",
+        "Verify the old token has been successfully revoked.",
+        "Monitor system dashboards for any anomalies in observability data."
       ],
-      "justification": "Given the 'medium' sensitivity and 'long-lived' usage pattern across 'all environments', a 90-day (quarterly) rotation strikes a balance between security best practices and operational overhead. Automated, phased rotation minimizes downtime and reduces human error. The 'never rotated' status makes initial implementation critical, hence robust pre/post checks and a clear propagation method are essential. This interval provides regular security hygiene without being overly disruptive for long-lived tokens."
+      "justification": "A 90-day rotation interval balances security best practices for medium-sensitivity, long-lived tokens with the operational overhead of managing 5 consumers. Automated, phased rotation minimizes downtime and reduces the risk of service interruption. While 'never rotated' is a significant security gap, a quarterly rotation provides a good starting point without being overly aggressive for a medium-sensitivity token. The propagation method leverages existing infrastructure to ensure consistency and reliability. Blast radius notes highlight the impact on observability, which is critical for system health."
     },
     {
       "category": "tls_certificates",
       "recommended_rotation_interval_days": 90,
-      "rotation_strategy": "Automated renewal and distribution using an internal PKI or certificate manager. Certificates should be short-lived to minimize impact of compromise.",
-      "propagation_method": "Automated deployment via configuration management (e.g., Ansible, Chef, Puppet) or direct integration with service mesh control plane (e.g., Istio SDS, Consul Connect). Load balancers should be updated via API or configuration push.",
-      "blast_radius_notes": "If rotation fails, services may experience downtime due to expired or invalid certificates. Partial updates could lead to inconsistent certificate states across consumers, causing intermittent connection failures or service unavailability. A rollback plan is crucial.",
+      "rotation_strategy": "Automated renewal and distribution via a Certificate Authority (CA) and secret management system. Implement short-lived certificates.",
+      "propagation_method": "Automated push from secret management system (e.g., HashiCorp Vault, AWS Secrets Manager) to load balancers and service mesh sidecars/proxies. Utilize a 'blue/green' or 'canary' deployment approach for certificate updates to minimize downtime.",
+      "blast_radius_notes": "Failure during rotation could lead to service outages due to invalid TLS certificates, preventing client-to-service and service-to-service communication. Partial rotation could result in inconsistent certificate versions across consumers, leading to intermittent failures.",
       "pre_rotation_checks": [
-        "Verify health of all consumers (load balancers, service mesh components).",
-        "Ensure certificate authority (CA) is operational and accessible.",
-        "Validate connectivity to all consumers from the certificate distribution system.",
-        "Test certificate generation and signing process with a dummy certificate.",
-        "Verify access permissions for the automated rotation system to all consumer endpoints."
+        "Verify CA availability and health.",
+        "Confirm connectivity to all consumer systems (load balancers, service mesh components).",
+        "Validate current certificate expiry dates.",
+        "Ensure secret management system is operational and accessible.",
+        "Test certificate issuance and revocation process in a staging environment."
       ],
       "post_rotation_checks": [
-        "Verify all consumers are using the new certificate.",
-        "Monitor service logs for TLS handshake errors.",
-        "Perform end-to-end connectivity tests for all services using the certificates.",
-        "Check certificate expiry dates on all consumers.",
-        "Ensure old certificates are no longer in use and have been revoked if necessary."
+        "Verify new certificates are correctly deployed on all consumers.",
+        "Perform end-to-end TLS handshake tests for all affected services.",
+        "Monitor service logs for TLS-related errors.",
+        "Check certificate expiry dates on deployed certificates to confirm renewal.",
+        "Ensure old certificates are revoked or removed from active use."
       ],
-      "justification": "A 90-day rotation interval provides a balance between security (frequent rotation reduces the window of exposure for compromised certificates) and operational overhead. Given the high sensitivity and usage pattern (mTLS), automated rotation is critical to minimize human error and ensure timely updates. Manual renewal before expiry is prone to human error and can lead to outages. Automated propagation is necessary due to the number of consumers and the critical nature of the certificates. Short-lived certificates (90 days) are a security best practice, making compromise less impactful and encouraging automation."
+      "justification": "A 90-day rotation interval (quarterly) balances security best practices with operational overhead. Given the high sensitivity and usage pattern (mutual TLS), frequent rotation reduces the window of exposure for compromised certificates. Automation is critical due to the number of consumers and the need for consistent, error-free updates. Manual renewal is prone to human error and can lead to outages if expiry is missed. Short-lived certificates further enhance security. The propagation method should leverage existing infrastructure (load balancers, service mesh) for efficient distribution. Robust pre/post-rotation checks are essential to prevent and detect service disruptions."
     }
   ]
 }

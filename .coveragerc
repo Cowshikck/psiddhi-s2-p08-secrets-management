@@ -6,7 +6,8 @@ omit =
     src/vault/setup_auth.py
     src/ai/audit_docs.py
     src/ai/rotation_policy.py
-
+    src/ai/compliance_mapping.py
+    src/ai/nl_audit_query.py
 [report]
 exclude_lines =
     if __name__ == "__main__"

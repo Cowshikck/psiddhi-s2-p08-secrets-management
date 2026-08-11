@@ -10,13 +10,16 @@ import json
 import os
 import pandas as pd
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ──────────────────────────────────────────────
 # Page config — wide, no sidebar by default
 # ──────────────────────────────────────────────
 st.set_page_config(
-    page_title="VaultGuard",
-    page_icon="🛡️",
+    page_title="VaultGuard \u2014 Secrets Management Dashboard",
+    page_icon="\U0001f6e1\ufe0f",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -167,11 +170,11 @@ else:
 # ──────────────────────────────────────────────
 hdr1, hdr2 = st.columns([3, 1])
 with hdr1:
-    st.markdown("# 🛡️ VaultGuard Dashboard")
+    st.markdown("# \U0001f6e1\ufe0f VaultGuard Dashboard")
 with hdr2:
     st.markdown(
         '<div style="text-align:right; padding-top:6px;">'
-        '<span style="font-size:0.72rem; color:#94a3b8;">S2-P-08 · pSiddhi 2026-01 · Cowshik Eswaramoorthy (P466)</span>'
+        '<span style="font-size:0.72rem; color:#94a3b8;">S2-P-08 \u00b7 pSiddhi 2026-01 \u00b7 Cowshik Eswaramoorthy (P466)</span>'
         '</div>', unsafe_allow_html=True
     )
 
@@ -196,12 +199,13 @@ k6.metric("AI Policies", total_policies)
 # ──────────────────────────────────────────────
 # Tabs
 # ──────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊  Access Patterns",
-    "🔄  Rotation & Policies",
-    "⚠️  Anomaly Feed",
-    "📋  Compliance Docs",
-    "📖  Guidance",
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "\U0001f4ca  Access Patterns",
+    "\U0001f504  Rotation & Policies",
+    "\u26a0\ufe0f  Anomaly Feed",
+    "\U0001f4cb  Compliance Docs",
+    "\U0001f50d  Ask Audit AI",
+    "\U0001f4d6  Guidance",
 ])
 
 # ═════════════════════════════════════════════
@@ -284,7 +288,7 @@ with tab1:
             st.plotly_chart(fig, use_container_width=True)
 
         with c7:
-            st.markdown("## Identity × Secret Path Matrix")
+            st.markdown("## Identity x Secret Path Matrix")
             mx = fdf.groupby(["identity", "path"]).size().reset_index(name="Count")
             pv = mx.pivot_table(index="identity", columns="path", values="Count", fill_value=0)
             fig = px.imshow(pv, color_continuous_scale=["#f0f9ff", "#1e40af"], text_auto=True, aspect="auto",
@@ -336,7 +340,7 @@ with tab2:
             style(fig, 280)
             st.plotly_chart(fig, use_container_width=True)
 
-        with st.expander("📄  Rotation Event Log"):
+        with st.expander("\U0001f4c4  Rotation Event Log"):
             show_df = rot_df[["timestamp", "secret_path", "old_version", "new_version", "status"]].copy()
             show_df.columns = ["Time", "Secret", "From", "To", "Status"]
             show_df = show_df.sort_values("Time", ascending=False)
@@ -346,7 +350,7 @@ with tab2:
 
     st.markdown("---")
     st.markdown("## AI-Generated Rotation Policies")
-    st.caption("Gemini 2.5 Flash — structured rotation recommendation per secret category")
+    st.caption("Gemini 2.5 Flash \u2014 structured rotation recommendation per secret category")
 
     policies = rotation_policies.get("policies", [])
     if policies:
@@ -365,14 +369,14 @@ with tab2:
         for p in policies:
             cat = p.get("category", "").replace("_", " ").title()
             days = p.get("recommended_rotation_interval_days", "N/A")
-            with st.expander("📋  " + cat + "  —  " + str(days) + " day interval"):
+            with st.expander("\U0001f4cb  " + cat + "  \u2014  " + str(days) + " day interval"):
                 lc, rc = st.columns(2)
                 with lc:
-                    st.markdown("**Strategy:** " + str(p.get("rotation_strategy", "—")))
-                    st.markdown("**Propagation:** " + str(p.get("propagation_method", "—")))
-                    st.markdown("**Blast Radius:** " + str(p.get("blast_radius_notes", "—")))
+                    st.markdown("**Strategy:** " + str(p.get("rotation_strategy", "\u2014")))
+                    st.markdown("**Propagation:** " + str(p.get("propagation_method", "\u2014")))
+                    st.markdown("**Blast Radius:** " + str(p.get("blast_radius_notes", "\u2014")))
                 with rc:
-                    st.markdown("**Justification:** " + str(p.get("justification", "—")))
+                    st.markdown("**Justification:** " + str(p.get("justification", "\u2014")))
                     pre = p.get("pre_rotation_checks", [])
                     post = p.get("post_rotation_checks", [])
                     if pre:
@@ -433,14 +437,14 @@ with tab3:
         # Events
         for atype, anomalies in abt.items():
             label = atype.replace("_", " ").title()
-            sev = "🔴 HIGH" if atype == "abnormal_access_frequency" else "🟠 MEDIUM"
+            sev = "\U0001f534 HIGH" if atype == "abnormal_access_frequency" else "\U0001f7e0 MEDIUM"
             with st.expander(sev + "  " + label + "  (" + str(len(anomalies)) + " events)"):
                 for a in anomalies[:10]:
                     st.markdown("- " + a.get("detail", str(a)))
 
         st.markdown("---")
-        st.markdown("## 🤖 AI Security Narration")
-        st.caption("Groq — Llama 3.3 70B Versatile")
+        st.markdown("## \U0001f916 AI Security Narration")
+        st.caption("Groq \u2014 Llama 3.3 70B Versatile")
         narration = anomaly_report.get("ai_narration", "")
         if narration:
             st.markdown(narration)
@@ -452,22 +456,119 @@ with tab3:
 # ═════════════════════════════════════════════
 with tab4:
     if audit_docs:
-        st.caption("AI-generated compliance documentation — Gemini 2.5 Flash")
-        icons = {"access_policy_effectiveness": "🔐", "rotation_compliance": "🔄", "anomaly_response": "⚠️"}
+        st.caption("AI-generated compliance documentation \u2014 Gemini 2.5 Flash")
+        icons = {"access_policy_effectiveness": "\U0001f510", "rotation_compliance": "\U0001f504", "anomaly_response": "\u26a0\ufe0f"}
         for key, doc in audit_docs.items():
             title = doc.get("title", key)
             gen = doc.get("generated_at", "")[:10]
             content = doc.get("content", "")
-            icon = icons.get(key, "📋")
+            icon = icons.get(key, "\U0001f4cb")
             with st.expander(icon + "  " + title + "  (" + gen + ")"):
                 st.markdown(content)
     else:
         st.warning("No audit documentation found.")
 
 # ═════════════════════════════════════════════
-# TAB 5 — GUIDANCE
+# TAB 5 — ASK AUDIT AI (NL Query)
 # ═════════════════════════════════════════════
 with tab5:
+    st.markdown("## Ask a Question About Your Audit Data")
+    st.caption("Powered by Groq \u2014 Llama 3.3 70B \u00b7 Answers grounded in real Vault audit logs")
+
+    # Build context once and cache in session state
+    if "nl_context" not in st.session_state and audit_logs:
+        from collections import Counter as NLCounter
+        from collections import defaultdict as NLDefaultDict
+        nl_by_identity = NLCounter()
+        nl_by_path = NLCounter()
+        nl_by_status = NLCounter()
+        nl_by_hour = NLCounter()
+        nl_identity_paths = NLDefaultDict(set)
+        nl_denied = []
+        nl_offhours = []
+        for e in audit_logs:
+            ident = e["auth"]["display_name"]
+            path = e["request"]["path"]
+            status = e["response"]["status_code"]
+            ts = datetime.fromisoformat(e["time"])
+            nl_by_identity[ident] += 1
+            nl_by_path[path] += 1
+            nl_by_status[status] += 1
+            nl_by_hour[ts.hour] += 1
+            nl_identity_paths[ident].add(path)
+            if status == 403:
+                nl_denied.append({"identity": ident, "path": path, "time": e["time"], "operation": e["request"]["operation"]})
+            if ts.hour >= 22 or ts.hour < 6:
+                nl_offhours.append({"identity": ident, "path": path, "time": e["time"], "hour": ts.hour})
+
+        ctx = "VAULT AUDIT LOG DATA SUMMARY\n============================\n\n"
+        ctx += "OVERVIEW:\n- Total events: " + str(len(audit_logs)) + "\n"
+        ctx += "- Successful (200): " + str(nl_by_status.get(200, 0)) + "\n"
+        ctx += "- Denied (403): " + str(nl_by_status.get(403, 0)) + "\n\n"
+        ctx += "IDENTITIES:\n"
+        for ident, count in nl_by_identity.most_common():
+            ctx += "- " + ident + ": " + str(count) + " accesses to: " + ", ".join(sorted(nl_identity_paths[ident])) + "\n"
+        ctx += "\nSECRET PATHS:\n"
+        for path, count in nl_by_path.most_common():
+            ctx += "- " + path + ": " + str(count) + " accesses\n"
+        ctx += "\nACCESS BY HOUR:\n"
+        for hour in sorted(nl_by_hour.keys()):
+            ctx += "- " + str(hour).zfill(2) + ":00 \u2014 " + str(nl_by_hour[hour]) + " events\n"
+        if nl_denied:
+            ctx += "\nDENIED ACCESS (403):\n"
+            for d in nl_denied[:15]:
+                ctx += "- " + d["identity"] + " tried " + d["operation"] + " on " + d["path"] + " at " + d["time"] + "\n"
+        if nl_offhours:
+            ctx += "\nOFF-HOURS ACCESS:\n"
+            for o in nl_offhours[:15]:
+                ctx += "- " + o["identity"] + " accessed " + o["path"] + " at " + o["time"] + "\n"
+        ctx += "\nPOLICIES:\n- developer: read on db-credentials, api-keys\n- cicd: read on db-credentials, api-keys, service-tokens, env-config\n- platform-admin: full CRUD on all paths\n"
+        st.session_state["nl_context"] = ctx
+
+    sample_questions = [
+        "Who accessed secrets after hours?",
+        "Were there any denied access attempts?",
+        "Which secret was accessed most frequently?",
+        "How many times did dev-user-alice access the system?",
+        "Show me all activity by admin-bob",
+    ]
+    st.markdown("**Example questions:** " + " \u00b7 ".join(["*" + q + "*" for q in sample_questions[:3]]))
+
+    user_question = st.text_input("Type your question:", placeholder="e.g. Who accessed secrets after hours?", key="nl_query_input")
+
+    if st.button("Ask Audit AI", key="nl_query_btn", type="primary"):
+        if user_question and "nl_context" in st.session_state:
+            with st.spinner("Querying Groq..."):
+                try:
+                    from groq import Groq as GroqClient
+                    client = GroqClient(api_key=os.getenv("GROQ_API_KEY"))
+                    prompt = (
+                        "You are a security analyst answering questions about Vault audit logs. "
+                        "Answer using ONLY the data below. Be specific \u2014 cite identities, paths, timestamps, counts. "
+                        "If data is insufficient, say so.\n\n"
+                        + st.session_state["nl_context"] + "\n\n"
+                        "QUESTION: " + user_question + "\n\nANSWER:"
+                    )
+                    resp = client.chat.completions.create(
+                        model="llama-3.3-70b-versatile",
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.2,
+                        max_tokens=1000
+                    )
+                    answer = resp.choices[0].message.content
+                    st.markdown("### Answer")
+                    st.markdown(answer)
+                except Exception as ex:
+                    st.error("Error querying Groq: " + str(ex))
+        elif not user_question:
+            st.warning("Please type a question first.")
+        else:
+            st.warning("No audit data available.")
+
+# ═════════════════════════════════════════════
+# TAB 6 — GUIDANCE
+# ═════════════════════════════════════════════
+with tab6:
     st.markdown("## What does this dashboard show?")
     st.markdown(
         '<div class="guidance-section">'
@@ -483,41 +584,41 @@ with tab5:
 
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Audit Events</strong> — The total number of times any identity (person or service) '
+        '<strong>Audit Events</strong> \u2014 The total number of times any identity (person or service) '
         'read, wrote, or listed a secret in Vault during the monitoring period. '
         'A high number is normal for active systems. What matters is the ratio of allowed vs denied.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Allowed (200)</strong> — Requests where Vault granted access because the identity '
+        '<strong>Allowed (200)</strong> \u2014 Requests where Vault granted access because the identity '
         'had the correct policy permissions. This should be the vast majority of all events.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Denied (403)</strong> — Requests where Vault rejected access because the identity '
+        '<strong>Denied (403)</strong> \u2014 Requests where Vault rejected access because the identity '
         'tried to read a secret outside their permitted scope. A small number of denials is healthy '
-        '— it means policies are working. A sudden spike in denials could indicate misconfiguration or probing.'
+        '\u2014 it means policies are working. A sudden spike in denials could indicate misconfiguration or probing.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Anomalies</strong> — Events that our rule-based detection system flagged as unusual. '
-        'Not every anomaly is a security incident — some are false positives. '
+        '<strong>Anomalies</strong> \u2014 Events that our rule-based detection system flagged as unusual. '
+        'Not every anomaly is a security incident \u2014 some are false positives. '
         'The Anomaly Feed tab shows what was flagged and the AI narration explains why.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Rotations</strong> — The number of times a secret was automatically replaced with a new value. '
+        '<strong>Rotations</strong> \u2014 The number of times a secret was automatically replaced with a new value. '
         'Regular rotation limits how long a compromised credential remains valid. '
         'Each rotation generates a new version in Vault and logs the event.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>AI Policies</strong> — The number of secret categories for which Gemini has generated '
+        '<strong>AI Policies</strong> \u2014 The number of secret categories for which Gemini has generated '
         'a structured rotation policy recommendation (interval, propagation method, blast radius notes).'
         '</div>', unsafe_allow_html=True
     )
@@ -527,46 +628,46 @@ with tab5:
 
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Requests by Identity</strong> — Shows which user or service account is making the most '
+        '<strong>Requests by Identity</strong> \u2014 Shows which user or service account is making the most '
         'secret access requests. In VaultGuard, there are three roles:<br>'
-        '• <strong>github-actions-cicd</strong> — automated CI/CD pipeline (expected to be the most active)<br>'
-        '• <strong>dev-user-alice</strong> — a developer with read-only access to dev secrets<br>'
-        '• <strong>admin-bob</strong> — a platform admin with full access to all secrets'
+        '\u2022 <strong>github-actions-cicd</strong> \u2014 automated CI/CD pipeline (expected to be the most active)<br>'
+        '\u2022 <strong>dev-user-alice</strong> \u2014 a developer with read-only access to dev secrets<br>'
+        '\u2022 <strong>admin-bob</strong> \u2014 a platform admin with full access to all secrets'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Requests by Secret Path</strong> — Shows which secrets are accessed most often. '
+        '<strong>Requests by Secret Path</strong> \u2014 Shows which secrets are accessed most often. '
         'Database credentials and API keys are typically the most frequently accessed because '
         'application services need them on every connection or API call.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Response Status</strong> — The split between allowed (200) and denied (403) requests. '
+        '<strong>Response Status</strong> \u2014 The split between allowed (200) and denied (403) requests. '
         'A healthy system shows 95%+ allowed. The denied requests come from developers '
         'or services attempting to access secrets outside their policy scope.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Daily Access Trend</strong> — How access volume changes day by day. '
+        '<strong>Daily Access Trend</strong> \u2014 How access volume changes day by day. '
         'Look for weekday vs weekend patterns (CI/CD runs on both, humans mostly on weekdays) '
         'and any sudden spikes that might indicate automated scanning or misconfigured jobs.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Hourly Activity</strong> — Shows what time of day secrets are being accessed. '
-        'Business-hours activity (9am–6pm) from human users is normal. '
+        '<strong>Hourly Activity</strong> \u2014 Shows what time of day secrets are being accessed. '
+        'Business-hours activity (9am\u20136pm) from human users is normal. '
         'Off-hours activity from human accounts is flagged as an anomaly.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Identity × Secret Path Matrix</strong> — A heatmap showing exactly which identity '
+        '<strong>Identity x Secret Path Matrix</strong> \u2014 A heatmap showing exactly which identity '
         'accessed which secret and how many times. Dark blue cells indicate high access. '
-        'Empty cells (zero) mean that identity never accessed that secret — which is expected '
+        'Empty cells (zero) mean that identity never accessed that secret \u2014 which is expected '
         'when policies correctly restrict scope.'
         '</div>', unsafe_allow_html=True
     )
@@ -576,27 +677,27 @@ with tab5:
 
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>What is secret rotation?</strong> — Rotation means replacing a secret (password, key, token) '
+        '<strong>What is secret rotation?</strong> \u2014 Rotation means replacing a secret (password, key, token) '
         'with a new randomly generated value. The old value becomes invalid. '
-        'This limits the damage window if a credential is compromised — even if an attacker stole a password, '
+        'This limits the damage window if a credential is compromised \u2014 even if an attacker stole a password, '
         'it stops working after the next rotation.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>Rotation Timeline</strong> — Shows when each rotation happened as dots on a timeline. '
-        'Green dots mean the rotation succeeded. Red dots (if any) mean it failed — '
+        '<strong>Rotation Timeline</strong> \u2014 Shows when each rotation happened as dots on a timeline. '
+        'Green dots mean the rotation succeeded. Red dots (if any) mean it failed \u2014 '
         'which triggers a rollback to the previous version and an alert.'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>AI Rotation Policies</strong> — For each type of secret, Gemini analyses the category metadata '
+        '<strong>AI Rotation Policies</strong> \u2014 For each type of secret, Gemini analyses the category metadata '
         '(sensitivity level, number of consumers, usage pattern) and recommends:<br>'
-        '• How often to rotate (interval in days)<br>'
-        '• How to propagate the new value to all consumers<br>'
-        '• What could go wrong if rotation fails midway (blast radius)<br>'
-        '• What to check before and after rotating'
+        '\u2022 How often to rotate (interval in days)<br>'
+        '\u2022 How to propagate the new value to all consumers<br>'
+        '\u2022 What could go wrong if rotation fails midway (blast radius)<br>'
+        '\u2022 What to check before and after rotating'
         '</div>', unsafe_allow_html=True
     )
 
@@ -605,20 +706,20 @@ with tab5:
 
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>What is an anomaly in VaultGuard?</strong> — An anomaly is a secret access event that '
+        '<strong>What is an anomaly in VaultGuard?</strong> \u2014 An anomaly is a secret access event that '
         'deviates from normal patterns. Our system detects three types:'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>🟠 Off-Hours Access</strong> — A human identity (not CI/CD) accessing secrets '
+        '<strong>\U0001f7e0 Off-Hours Access</strong> \u2014 A human identity (not CI/CD) accessing secrets '
         'between 10pm and 6am. This is unusual because developers typically work during business hours. '
         'It could be legitimate (on-call engineer) or suspicious (compromised credentials being used while the real user is asleep).'
         '</div>', unsafe_allow_html=True
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>🟠 Unusual Identity-Secret Pairing</strong> — A developer accessing secrets they '
+        '<strong>\U0001f7e0 Unusual Identity-Secret Pairing</strong> \u2014 A developer accessing secrets they '
         'normally do not use. For example, a developer reading TLS certificates or service tokens '
         'when their policy only covers database credentials and API keys. '
         'Even if the request was denied (403), the attempt itself is worth investigating.'
@@ -626,7 +727,7 @@ with tab5:
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>🔴 Abnormal Access Frequency</strong> — An identity making an unusually high number '
+        '<strong>\U0001f534 Abnormal Access Frequency</strong> \u2014 An identity making an unusually high number '
         'of requests in a short time window (more than 20 in 10 minutes). '
         'This is rated HIGH severity because it could indicate automated credential harvesting, '
         'a brute-force attack, or a misconfigured pipeline that is hammering Vault.'
@@ -634,7 +735,7 @@ with tab5:
     )
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>AI Security Narration</strong> — After rule-based detection flags anomalies, '
+        '<strong>AI Security Narration</strong> \u2014 After rule-based detection flags anomalies, '
         'we send the flagged events to Groq (Llama 3.3 70B) which writes a plain-English security report. '
         'This report is designed for a compliance officer or security reviewer who needs to understand '
         'what happened without reading raw logs.'
@@ -646,12 +747,12 @@ with tab5:
 
     st.markdown(
         '<div class="guidance-section">'
-        '<strong>What are these documents?</strong> — These are AI-generated compliance reports '
+        '<strong>What are these documents?</strong> \u2014 These are AI-generated compliance reports '
         'that summarise VaultGuard audit data into formats a compliance officer or auditor can review. '
         'Each document covers one theme:<br>'
-        '• <strong>Access Policy Effectiveness</strong> — Are policies correctly restricting who can read what?<br>'
-        '• <strong>Rotation Compliance</strong> — Are secrets being rotated on schedule?<br>'
-        '• <strong>Anomaly Response</strong> — Are detected anomalies being addressed?<br><br>'
+        '\u2022 <strong>Access Policy Effectiveness</strong> \u2014 Are policies correctly restricting who can read what?<br>'
+        '\u2022 <strong>Rotation Compliance</strong> \u2014 Are secrets being rotated on schedule?<br>'
+        '\u2022 <strong>Anomaly Response</strong> \u2014 Are detected anomalies being addressed?<br><br>'
         'Each document includes an executive summary, findings, compliance status, and recommendations.'
         '</div>', unsafe_allow_html=True
     )
@@ -661,7 +762,7 @@ with tab5:
 # ──────────────────────────────────────────────
 st.markdown(
     '<div class="footer-text">'
-    "VaultGuard · IMPACT pSiddhi 3.0 · S2-P-08 · Cowshik Eswaramoorthy (P466) · Platform Track · Semester 2"
+    "VaultGuard \u00b7 IMPACT pSiddhi 3.0 \u00b7 S2-P-08 \u00b7 Cowshik Eswaramoorthy (P466) \u00b7 Platform Track \u00b7 Semester 2"
     "</div>",
     unsafe_allow_html=True,
 )

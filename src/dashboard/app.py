@@ -468,6 +468,27 @@ with tab4:
     else:
         st.warning("No audit documentation found.")
 
+    # SOC 2 / ISO 27001 Compliance Mapping
+    st.markdown("---")
+    st.markdown("## SOC 2 / ISO 27001 Compliance Mapping")
+    st.caption("AI-generated control mapping \u2014 Gemini 2.5 Flash")
+    compliance_mapping = load(os.path.join(D, "compliance-mapping.json"))
+    if compliance_mapping and compliance_mapping.get("mappings"):
+        soc2_controls = [m for m in compliance_mapping["mappings"] if m["framework"] == "SOC 2"]
+        iso_controls = [m for m in compliance_mapping["mappings"] if m["framework"] == "ISO 27001"]
+        cm1, cm2 = st.columns(2)
+        cm1.metric("SOC 2 Controls Mapped", len(soc2_controls))
+        cm2.metric("ISO 27001 Controls Mapped", len(iso_controls))
+        for m in compliance_mapping["mappings"]:
+            icon = "\U0001f535" if m["framework"] == "SOC 2" else "\U0001f7e2"
+            with st.expander(icon + "  " + m["control_id"] + " \u2014 " + m["control"]):
+                st.markdown("**Framework:** " + m["framework"])
+                st.markdown("**Requirement:** " + m["requirement"])
+                st.markdown("---")
+                st.markdown(m["assessment"])
+    else:
+        st.info("Run src/ai/compliance_mapping.py to generate SOC 2 / ISO 27001 mappings.")
+
 # ═════════════════════════════════════════════
 # TAB 5 — ASK AUDIT AI (NL Query)
 # ═════════════════════════════════════════════

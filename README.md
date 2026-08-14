@@ -1,5 +1,14 @@
 # S2-P-08: Secrets Management and Rotation System
 
+![Tests](https://img.shields.io/badge/tests-82_passing-success)
+![Coverage](https://img.shields.io/badge/coverage-81%25-brightgreen)
+![Python](https://img.shields.io/badge/python-3.13-blue)
+![Vault](https://img.shields.io/badge/HashiCorp_Vault-v2.0.2-black)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![Status](https://img.shields.io/badge/status-production_ready-success)
+![Budget](https://img.shields.io/badge/budget-%E2%82%B90%20%2F%20%E2%82%B92%2C500-success)
+![Mid Term](https://img.shields.io/badge/mid--term-100%2F100-brightgreen)
+
 **VaultGuard** — End-to-end secrets management and rotation platform.
 
 IMPACT pSiddhi 3.0 · Semester 2 · Platform Track · pSiddhi-2026-01

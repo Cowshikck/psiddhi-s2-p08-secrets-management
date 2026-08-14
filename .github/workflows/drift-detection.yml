@@ -1,0 +1,49 @@
+name: Configuration Drift Detection
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  check-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          pip install hvac python-dotenv
+
+      - name: Start Vault dev server
+        run: |
+          wget -q https://releases.hashicorp.com/vault/1.17.2/vault_1.17.2_linux_amd64.zip
+          unzip -q vault_1.17.2_linux_amd64.zip
+          ./vault server -dev -dev-root-token-id=github-actions-test &
+          sleep 3
+
+      - name: Seed Vault from Git source of truth
+        env:
+          VAULT_ADDR: http://127.0.0.1:8200
+          VAULT_TOKEN: github-actions-test
+        run: |
+          python src/vault/setup_vault.py
+
+      - name: Run drift detection
+        env:
+          VAULT_ADDR: http://127.0.0.1:8200
+          VAULT_TOKEN: github-actions-test
+        run: |
+          python src/utils/drift_detector.py
+
+      - name: Report result
+        if: failure()
+        run: |
+          echo "::error::Configuration drift detected between Git and Vault"
+          echo "See job logs above for details"

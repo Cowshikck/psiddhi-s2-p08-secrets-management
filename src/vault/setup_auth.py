@@ -14,9 +14,9 @@ VAULT_ADDR = os.getenv("VAULT_ADDR", "http://127.0.0.1:8200")
 VAULT_TOKEN = os.getenv("VAULT_TOKEN")
 
 # Entra ID tenant details
-TENANT_ID = "070808c5-4d3b-459f-8605-6f85f1415c5c"
-CLIENT_ID = "76048c1c-f09c-464d-90a3-72ac7bef069e"
-CLIENT_SECRET = "E_A8Q~YCbXWH52yjvhZGfqzI49aCGF5e2qv3ub-2"
+TENANT_ID = os.getenv("ENTRA_TENANT_ID")
+CLIENT_ID = os.getenv("ENTRA_CLIENT_ID")
+CLIENT_SECRET = os.getenv("ENTRA_CLIENT_SECRET")
 OIDC_DISCOVERY_URL = "https://login.microsoftonline.com/" + TENANT_ID + "/v2.0"
 
 REDIRECT_URIS = [
